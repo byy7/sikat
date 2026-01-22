@@ -8,7 +8,7 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')"/>
 
-        <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
+        <form id="loginForm" method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
             @csrf
 
             <!-- Email Address -->
@@ -46,7 +46,8 @@
             <flux:checkbox name="remember" :label="__('Ingat Saya')" :checked="old('remember')"/>
 
             <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full">
+                <flux:button variant="primary" id="submitBtn" type="submit"
+                             class="w-full disabled:opacity-50 disabled:cursor-not-allowed">
                     {{ __('Login') }}
                 </flux:button>
             </div>
@@ -59,4 +60,12 @@
             </div>
         @endif
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+        });
+    </script>
 </x-layouts::auth>
