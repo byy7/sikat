@@ -109,10 +109,10 @@
                     label: 'Jumlah Data',
                     data: [300, 50, 100, 250],
                     backgroundColor: [
-                        'rgb(255, 99, 132)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 205, 86)',
-                        'rgb(190, 205, 86)',
+                        '#FF6B6B',
+                        '#4D96FF',
+                        '#FFC75F',
+                        '#6BCF9D',
                     ],
                     hoverOffset: 4
                 }]
