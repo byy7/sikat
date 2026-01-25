@@ -4,6 +4,8 @@ use App\Models\Report;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Consts\Month;
+use App\Helpers\CustomBadgeHelper;
 
 new class extends Component {
     #[Computed]
@@ -32,12 +34,11 @@ new class extends Component {
     #[Computed]
     public function rows()
     {
-        return Report::cursorPaginate(10);
+        return Report::latest()
+            ->cursorPaginate(10);
     }
 };
 ?>
-
-@php use App\Consts\Month; @endphp
 
 <div class="relative w-full">
     <div class="relative mb-6 w-full">
@@ -87,38 +88,29 @@ new class extends Component {
         @endforeach
     </div>
     <flux:table>
-        <flux:table.columns>
-            <flux:table.column></flux:table.column>
-            <flux:table.column class="max-md:hidden">ID</flux:table.column>
-            <flux:table.column class="max-md:hidden">Date</flux:table.column>
-            <flux:table.column class="max-md:hidden">Status</flux:table.column>
-            <flux:table.column><span class="max-md:hidden">Customer</span>
+        <flux:table.columns sticky>
+            <flux:table.column class="max-md:hidden">No</flux:table.column>
+            <flux:table.column class="max-md:hidden">Nama</flux:table.column>
+            <flux:table.column class="max-md:hidden">Keperluan</flux:table.column>
+            <flux:table.column><span class="max-md:hidden">Foto</span>
                 <div class="md:hidden w-6"></div>
             </flux:table.column>
-            <flux:table.column>Purchase</flux:table.column>
-            <flux:table.column>Revenue</flux:table.column>
-            <flux:table.column></flux:table.column>
+            <flux:table.column>Aksi</flux:table.column>
         </flux:table.columns>
         <flux:table.rows>
-            @foreach ($this->rows as $row)
+            @forelse($this->rows as $key => $row)
                 <flux:table.row>
-                    <flux:table.cell class="pr-2">
-                        <flux:checkbox/>
-                    </flux:table.cell>
-                    <flux:table.cell class="max-md:hidden">#{{ $row['id'] }}</flux:table.cell>
-                    <flux:table.cell class="max-md:hidden">{{ $row['date'] }}</flux:table.cell>
+                    <flux:table.cell class="max-md:hidden">#{{ $key + 1 }}</flux:table.cell>
+                    <flux:table.cell class="max-md:hidden">{{ $row->name }}</flux:table.cell>
                     <flux:table.cell class="max-md:hidden">
-                        <flux:badge :color="$row['status_color']" size="sm"
-                                    inset="top bottom">{{ $row['status'] }}</flux:badge>
+                        <flux:badge :color="CustomBadgeHelper::badgeNecessary($row->necessary)" size="sm"
+                                    inset="top bottom">{{ $row->necessary }}</flux:badge>
                     </flux:table.cell>
                     <flux:table.cell class="min-w-6">
                         <div class="flex items-center gap-2">
-                            <flux:avatar src="https://i.pravatar.cc/48?img={{ $loop->index }}" size="xs"/>
-                            <span class="max-md:hidden">{{ $row['customer'] }}</span>
+                            <flux:avatar src="{{ $row->photo }}" size="md"/>
                         </div>
                     </flux:table.cell>
-                    <flux:table.cell class="max-w-6 truncate">{{ $row['purchase'] }}</flux:table.cell>
-                    <flux:table.cell class="" variant="strong">{{ $row['amount'] }}</flux:table.cell>
                     <flux:table.cell>
                         <flux:dropdown position="bottom" align="end" offset="-15">
                             <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
@@ -131,7 +123,11 @@ new class extends Component {
                         </flux:dropdown>
                     </flux:table.cell>
                 </flux:table.row>
-            @endforeach
+            @empty
+                <flux:table.row class="text-center">
+                    <flux:table.cell colspan="5">Data Tidak Tersedia</flux:table.cell>
+                </flux:table.row>
+            @endforelse
         </flux:table.rows>
     </flux:table>
     <flux:pagination :paginator="$this->rows"/>
