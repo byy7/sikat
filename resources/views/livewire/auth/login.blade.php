@@ -47,7 +47,7 @@
 
             <div class="flex items-center justify-end">
                 <flux:button variant="primary" id="submitBtn" type="submit"
-                             class="w-full disabled:opacity-50 disabled:cursor-not-allowed">
+                             class="w-full">
                     {{ __('Login') }}
                 </flux:button>
             </div>
@@ -56,7 +56,7 @@
         @if (Route::has('register'))
             <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
                 <span>{{ __('Belum mempunyai akun?') }}</span>
-                <flux:link :href="route('register')" wire:navigate>{{ __('Daftar') }}</flux:link>
+                <flux:link :href="route('register')" wire:navigate>{{ __('Register') }}</flux:link>
             </div>
         @endif
     </div>
