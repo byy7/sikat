@@ -5,9 +5,10 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Consts\Month;
-use App\Helpers\CustomBadgeHelper;
 
 new class extends Component {
+    use WithPagination;
+
     #[Computed]
     public function stats()
     {
@@ -35,7 +36,7 @@ new class extends Component {
     public function rows()
     {
         return Report::latest()
-            ->cursorPaginate(10);
+        ->paginate(10);
     }
 };
 ?>
@@ -44,7 +45,7 @@ new class extends Component {
     <div class="relative mb-6 w-full">
         <flux:heading size="xl" level="1">{{ __('Data Pengunjung') }}</flux:heading>
         <flux:subheading size="lg" class="mb-4">{{ __('Kelola laporan & data pengunjung') }}</flux:subheading>
-        <flux:button variant="primary" icon="plus-circle" class="mb-2">Tambah Data</flux:button>
+        <livewire:pages::report.form/>
         <flux:separator variant="subtle"/>
     </div>
     <div class="mb-6 flex justify-between">
@@ -71,7 +72,7 @@ new class extends Component {
                 <flux:button icon="arrow-down-on-square-stack" icon:variant="outline"/>
             </flux:tooltip>
             <flux:tooltip content="Refresh">
-                <flux:button icon="arrow-path"/>
+                <flux:button wire:click="$refresh" icon="arrow-path"/>
             </flux:tooltip>
         </div>
         <div class="items-center gap-2">
@@ -81,7 +82,7 @@ new class extends Component {
     <div class="flex gap-6 mb-6">
         @foreach ($this->stats as $stat)
             <div
-                class="relative flex-1 rounded-lg px-6 py-4 bg-zinc-50 dark:bg-zinc-700 {{ $loop->iteration > 1 ? 'max-md:hidden' : '' }}  {{ $loop->iteration > 3 ? 'max-lg:hidden' : '' }}">
+                class="relative flex-1 rounded-lg px-6 py-4 bg-zinc-50 dark:bg-zinc-700">
                 <flux:subheading>{{ $stat['title'] }}</flux:subheading>
                 <flux:heading size="xl" class="mb-2">{{ $stat['value'] }}</flux:heading>
             </div>
@@ -100,10 +101,10 @@ new class extends Component {
         <flux:table.rows>
             @forelse($this->rows as $key => $row)
                 <flux:table.row>
-                    <flux:table.cell class="max-md:hidden">#{{ $key + 1 }}</flux:table.cell>
+                    <flux:table.cell class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
                     <flux:table.cell class="max-md:hidden">{{ $row->name }}</flux:table.cell>
                     <flux:table.cell class="max-md:hidden">
-                        <flux:badge :color="CustomBadgeHelper::badgeNecessary($row->necessary)" size="sm"
+                        <flux:badge :color="\App\Helpers\CustomBadgeHelper::badgeNecessary($row->necessary)" size="sm"
                                     inset="top bottom">{{ $row->necessary }}</flux:badge>
                     </flux:table.cell>
                     <flux:table.cell class="min-w-6">
@@ -116,9 +117,8 @@ new class extends Component {
                             <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
                                          inset="top bottom"></flux:button>
                             <flux:menu>
-                                <flux:menu.item icon="document-text">View invoice</flux:menu.item>
-                                <flux:menu.item icon="receipt-refund">Refund</flux:menu.item>
-                                <flux:menu.item icon="archive-box" variant="danger">Archive</flux:menu.item>
+                                <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                <flux:menu.item icon="trash">Hapus</flux:menu.item>
                             </flux:menu>
                         </flux:dropdown>
                     </flux:table.cell>
