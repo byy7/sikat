@@ -36,7 +36,7 @@ new class extends Component {
     public function rows()
     {
         return Report::latest()
-        ->paginate(10);
+            ->paginate(10);
     }
 };
 ?>
@@ -101,7 +101,8 @@ new class extends Component {
         <flux:table.rows>
             @forelse($this->rows as $key => $row)
                 <flux:table.row>
-                    <flux:table.cell class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
+                    <flux:table.cell
+                        class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
                     <flux:table.cell class="max-md:hidden">{{ $row->name }}</flux:table.cell>
                     <flux:table.cell class="max-md:hidden">
                         <flux:badge :color="\App\Helpers\CustomBadgeHelper::badgeNecessary($row->necessary)" size="sm"
@@ -109,7 +110,12 @@ new class extends Component {
                     </flux:table.cell>
                     <flux:table.cell class="min-w-6">
                         <div class="flex items-center gap-2">
-                            <flux:avatar src="{{ $row->photo }}" size="md"/>
+                            @if(!is_null($row->photo) && $row->photo !== "")
+                                <flux:avatar href="{{ Storage::url($row->photo) }}" target="_blank"
+                                             src="{{ Storage::url($row->photo) }}" size="xl"/>
+                            @else
+                                <p>Foto tidak ditemukan</p>
+                            @endif
                         </div>
                     </flux:table.cell>
                     <flux:table.cell>

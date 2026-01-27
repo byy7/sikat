@@ -7,12 +7,13 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 
 new class extends Component {
+    use WithFileUploads;
+
     public ReportForm $form;
 
     public function save()
     {
         $this->form->store();
-
         $this->dispatch('report-saved');
 
         return $this->redirect('/reports', navigate: true);
@@ -28,7 +29,7 @@ new class extends Component {
         </flux:button>
     </flux:modal.trigger>
 
-    <flux:modal name="form-store" :show="$errors->isNotEmpty()" focusable>
+    <flux:modal name="form-store" :show="$errors->isNotEmpty()" focusable :dismissible="false">
         <form method="POST" wire:submit="save" class="space-y-6">
             <flux:heading size="lg">{{ __('Data Pengunjung') }}</flux:heading>
 
@@ -51,8 +52,8 @@ new class extends Component {
                 <flux:error name="form.necessary"/>
             </flux:field>
 
-            <flux:input type="file" wire:model="form.photo" label="Foto"
-                        description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB."/>
+            <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
+                        description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
 
             <x-action-message class="mt-2 mb-2" on="report-saved">
                 <flux:badge icon="check-circle" color="lime">Data berhasil tersimpan.</flux:badge>
