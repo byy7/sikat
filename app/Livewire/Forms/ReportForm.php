@@ -3,6 +3,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Report;
+use App\Services\ReportService;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
 
@@ -16,25 +17,34 @@ class ReportForm extends Form
     #[Validate('required')]
     public $necessary = '';
 
-    #[Validate('nullable|mimes:jpg,jpeg,png|max:5120')]
-    public $photo = '';
+    #[Validate('required|image|max:5120')]
+    public $photo;
 
-    public function setReport(Report $report)
+    public function setReport(Report $report): void
     {
         $this->report = $report;
         $this->name = $report->name;
         $this->necessary = $report->necessary;
-        $this->photo = $report->photo;
     }
 
-    public function store()
+    public function store(): void
     {
         $this->validate();
 
-        Report::create($this->pull());
+        /* Handle photo */
+        $reportService = new ReportService;
+        $photoPath = $reportService->saveImage($this->photo);
+
+        Report::create([
+            'name' => $this->name,
+            'necessary' => $this->necessary,
+            'photo' => $photoPath,
+        ]);
+
+        $this->reset();
     }
 
-    public function update()
+    public function update(): void
     {
         $this->validate();
 
