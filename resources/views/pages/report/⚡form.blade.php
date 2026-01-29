@@ -52,20 +52,36 @@ new class extends Component {
                 <flux:error name="form.necessary"/>
             </flux:field>
 
-            <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
-                        description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
+            <div
+                x-data="{ uploading: false, progress: 0 }"
+                x-on:livewire-upload-start="uploading = true"
+                x-on:livewire-upload-finish="uploading = false"
+                x-on:livewire-upload-cancel="uploading = false"
+                x-on:livewire-upload-error="uploading = false"
+                x-on:livewire-upload-progress="progress = $event.detail.progress"
+            >
 
-            <x-action-message class="mt-2 mb-2" on="report-saved">
-                <flux:badge icon="check-circle" color="lime">Data berhasil tersimpan.</flux:badge>
-            </x-action-message>
+                <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
+                            description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
 
-            <div class="flex justify-end space-x-2 rtl:space-x-reverse">
-                <flux:modal.close>
-                    <flux:button variant="filled">{{ __('Batal') }}</flux:button>
-                </flux:modal.close>
+                <div wire:loading wire:target="form.photo">Uploading...</div>
 
-                <flux:button variant="primary" color="emerald" type="submit">{{ __('Simpan') }}</flux:button>
-            </div>
+                <!-- Progress Bar -->
+                <div x-show="uploading">
+                    <progress max="100" x-bind:value="progress"></progress>
+                </div>
+                <x-action-message class="mt-2 mb-2" on="report-saved">
+                    <flux:badge icon="check-circle" color="lime">Data berhasil tersimpan.</flux:badge>
+                </x-action-message>
+
+                <div class="flex justify-end space-x-2 rtl:space-x-reverse">
+                    <flux:modal.close>
+                        <flux:button variant="filled">{{ __('Batal') }}</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button variant="primary" color="emerald" wire:loading.attr="disabled" wire:target="form.photo"
+                                 type="submit">{{ __('Simpan') }}</flux:button>
+                </div>
         </form>
     </flux:modal>
 </div>

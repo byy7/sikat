@@ -43,7 +43,7 @@ class ReportService
         }
 
         /* Save Image */
-        Storage::put($fileName, (string) $encoded);
+        Storage::put($filePath, (string) $encoded);
 
         return $filePath;
     }

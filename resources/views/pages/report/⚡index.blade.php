@@ -2,6 +2,7 @@
 
 use App\Models\Report;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Consts\Month;
@@ -9,8 +10,11 @@ use App\Consts\Month;
 new class extends Component {
     use WithPagination;
 
+    #[On('report-deleted')]
+    public function refresh(){}
+
     #[Computed]
-    public function stats()
+    public function stats(): array
     {
         return [
             [
@@ -46,6 +50,9 @@ new class extends Component {
         <flux:heading size="xl" level="1">{{ __('Data Pengunjung') }}</flux:heading>
         <flux:subheading size="lg" class="mb-4">{{ __('Kelola laporan & data pengunjung') }}</flux:subheading>
         <livewire:pages::report.form/>
+        <x-action-message class="mt-2 mb-2" on="report-deleted">
+            <flux:badge icon="check-circle" color="rose">Data berhasil terhapus.</flux:badge>
+        </x-action-message>
         <flux:separator variant="subtle"/>
     </div>
     <div class="mb-6 flex justify-between">
@@ -100,6 +107,9 @@ new class extends Component {
         </flux:table.columns>
         <flux:table.rows>
             @forelse($this->rows as $key => $row)
+                @php
+                    $encryptedId = encrypt($row->id);
+                @endphp
                 <flux:table.row>
                     <flux:table.cell
                         class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
@@ -124,9 +134,12 @@ new class extends Component {
                                          inset="top bottom"></flux:button>
                             <flux:menu>
                                 <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
-                                <flux:menu.item icon="trash">Hapus</flux:menu.item>
+                                <flux:modal.trigger :name="'delete-report-' . $encryptedId">
+                                    <flux:menu.item icon="trash" variant="danger">Hapus</flux:menu.item>
+                                </flux:modal.trigger>
                             </flux:menu>
                         </flux:dropdown>
+                        <livewire:pages::report.forms.delete :reportId="$encryptedId"/>
                     </flux:table.cell>
                 </flux:table.row>
             @empty

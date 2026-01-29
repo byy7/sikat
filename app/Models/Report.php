@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 
 /**
  * @method static create(mixed $pull)
+ * @method static find(mixed $decrypt)
  */
 class Report extends Model
 {
