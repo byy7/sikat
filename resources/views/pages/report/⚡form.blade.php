@@ -11,6 +11,12 @@ new class extends Component {
 
     public ReportForm $form;
 
+    public function resetForm(): void
+    {
+        $this->form->reset();
+        $this->form->resetValidation();
+    }
+
     public function save()
     {
         $this->form->store();
@@ -24,12 +30,13 @@ new class extends Component {
 <div>
     <flux:modal.trigger name="form-store">
         <flux:button variant="primary" icon="plus-circle" class="mb-2" x-data=""
-                     x-on:click.prevent="$dispatch('open-modal', 'form-store')">
+                     wire:click="resetForm">
             {{ __('Tambah Data') }}
         </flux:button>
     </flux:modal.trigger>
 
-    <flux:modal name="form-store" :show="$errors->isNotEmpty()" focusable :dismissible="false">
+    <flux:modal name="form-store" :show="$errors->isNotEmpty()"
+                :dismissible="false">
         <form method="POST" wire:submit="save" class="space-y-6">
             <flux:heading size="lg">{{ __('Data Pengunjung') }}</flux:heading>
 
@@ -58,8 +65,7 @@ new class extends Component {
                 x-on:livewire-upload-finish="uploading = false"
                 x-on:livewire-upload-cancel="uploading = false"
                 x-on:livewire-upload-error="uploading = false"
-                x-on:livewire-upload-progress="progress = $event.detail.progress"
-            >
+                x-on:livewire-upload-progress="progress = $event.detail.progress">
 
                 <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
                             description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
@@ -70,18 +76,19 @@ new class extends Component {
                 <div x-show="uploading">
                     <progress max="100" x-bind:value="progress"></progress>
                 </div>
-                <x-action-message class="mt-2 mb-2" on="report-saved">
-                    <flux:badge icon="check-circle" color="lime">Data berhasil tersimpan.</flux:badge>
-                </x-action-message>
+            </div>
+            <x-action-message class="mt-2 mb-2" on="report-saved">
+                <flux:badge icon="check-circle" color="lime">Data berhasil tersimpan.</flux:badge>
+            </x-action-message>
 
-                <div class="flex justify-end space-x-2 rtl:space-x-reverse">
-                    <flux:modal.close>
-                        <flux:button variant="filled">{{ __('Batal') }}</flux:button>
-                    </flux:modal.close>
+            <div class="flex justify-end space-x-2 rtl:space-x-reverse mt-3">
+                <flux:modal.close>
+                    <flux:button variant="filled">{{ __('Batal') }}</flux:button>
+                </flux:modal.close>
 
-                    <flux:button variant="primary" color="emerald" wire:loading.attr="disabled" wire:target="form.photo"
-                                 type="submit">{{ __('Simpan') }}</flux:button>
-                </div>
+                <flux:button variant="primary" color="emerald" wire:loading.attr="disabled" wire:target="form.photo"
+                             type="submit">{{ __('Simpan') }}</flux:button>
+            </div>
         </form>
     </flux:modal>
 </div>
