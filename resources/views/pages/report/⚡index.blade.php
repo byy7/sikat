@@ -1,17 +1,23 @@
 <?php
 
 use App\Models\Report;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
+use LaravelIdea\Helper\App\Models\_IH_Report_C;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Consts\Month;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 new class extends Component {
     use WithPagination;
 
     #[On('report-deleted')]
-    public function refresh(){}
+    public function refresh()
+    {
+    }
 
     #[Computed]
     public function stats(): array
@@ -37,7 +43,7 @@ new class extends Component {
     }
 
     #[Computed]
-    public function rows()
+    public function rows(): array|LengthAwarePaginator|_IH_Report_C
     {
         return Report::latest()
             ->paginate(10);
@@ -121,8 +127,31 @@ new class extends Component {
                     <flux:table.cell class="min-w-6">
                         <div class="flex items-center gap-2">
                             @if(!is_null($row->photo) && $row->photo !== "")
-                                <flux:avatar href="{{ Storage::url($row->photo) }}" target="_blank"
-                                             src="{{ Storage::url($row->photo) }}" size="xl"/>
+                                <flux:modal.trigger :name="'show-photo-' . $encryptedId">
+                                    <flux:avatar as="button" src="{{ Storage::url($row->photo) }}"/>
+                                </flux:modal.trigger>
+
+                                {{-- Modal --}}
+                                <flux:modal :name="'show-photo-' . $encryptedId">
+                                    <img class="mt-7 mb-3" src="{{ Storage::url($row->photo) }}" alt="{{ $row->name }}">
+
+                                    <div class="flex justify-start space-x-2 rtl:space-x-reverse">
+                                        <flux:modal.close>
+                                            <flux:button variant="filled">{{ __('Tutup') }}</flux:button>
+                                        </flux:modal.close>
+                                        <div x-data="{ downloading: false }">
+                                            <flux:button
+                                                href="{{ route('reports.download', $encryptedId) }}"
+                                                @click="downloading = true; setTimeout(() => downloading = false, 2000)"
+                                                icon="arrow-down-tray"
+                                                variant="primary"
+                                                ::disabled="downloading">
+                                                <span x-show="!downloading">{{ __('Download') }}</span>
+                                                <span x-show="downloading">{{ __('Downloading...') }}</span>
+                                            </flux:button>
+                                        </div>
+                                    </div>
+                                </flux:modal>
                             @else
                                 <p>Foto tidak ditemukan</p>
                             @endif

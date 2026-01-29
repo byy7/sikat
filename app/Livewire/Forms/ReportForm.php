@@ -18,7 +18,7 @@ class ReportForm extends Form
     public $necessary = '';
 
     #[Validate('required|image|max:5120')]
-    public $photo;
+    public $photo = null;
 
     public function setReport($id): void
     {
