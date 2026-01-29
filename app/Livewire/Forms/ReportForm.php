@@ -20,11 +20,12 @@ class ReportForm extends Form
     #[Validate('required|image|max:5120')]
     public $photo;
 
-    public function setReport(Report $report): void
+    public function setReport($id): void
     {
-        $this->report = $report;
-        $this->name = $report->name;
-        $this->necessary = $report->necessary;
+        $id = decrypt($id);
+        $this->report = Report::find($id);
+        $this->name = $this->report->name;
+        $this->necessary = $this->report->necessary;
     }
 
     public function store(): void
@@ -49,5 +50,14 @@ class ReportForm extends Form
         $this->validate();
 
         $this->report->update($this->pull());
+    }
+
+    public function delete($id): void
+    {
+        $report = Report::find(decrypt($id));
+
+        /* Delete images */
+
+        $report->delete();
     }
 }
