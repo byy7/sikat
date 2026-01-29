@@ -55,10 +55,7 @@ new class extends Component {
     <div class="relative mb-6 w-full">
         <flux:heading size="xl" level="1">{{ __('Data Pengunjung') }}</flux:heading>
         <flux:subheading size="lg" class="mb-4">{{ __('Kelola laporan & data pengunjung') }}</flux:subheading>
-        <livewire:pages::report.form/>
-        <x-action-message class="mt-2 mb-2" on="report-deleted">
-            <flux:badge icon="check-circle" color="rose">Data berhasil terhapus.</flux:badge>
-        </x-action-message>
+        <livewire:pages::report.forms.create/>
         <flux:separator variant="subtle"/>
     </div>
     <div class="mb-6 flex justify-between">
@@ -162,12 +159,15 @@ new class extends Component {
                             <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
                                          inset="top bottom"></flux:button>
                             <flux:menu>
-                                <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                <flux:modal.trigger :name="'edit-report-' . $encryptedId">
+                                    <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                </flux:modal.trigger>
                                 <flux:modal.trigger :name="'delete-report-' . $encryptedId">
                                     <flux:menu.item icon="trash" variant="danger">Hapus</flux:menu.item>
                                 </flux:modal.trigger>
                             </flux:menu>
                         </flux:dropdown>
+                        <livewire:pages::report.forms.edit :reportId="$encryptedId"/>
                         <livewire:pages::report.forms.delete :reportId="$encryptedId"/>
                     </flux:table.cell>
                 </flux:table.row>

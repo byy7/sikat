@@ -13,13 +13,12 @@ new class extends Component {
         $this->reportId = $reportId;
     }
 
-    public function delete(): void
+    public function delete()
     {
         $this->form->delete($this->reportId);
         $this->dispatch('report-deleted');
-        $this->dispatch('$refresh')->to('pages::report.index');
 
-        Flux::modals()->close();
+        return $this->redirect('/reports', navigate: true);
     }
 };
 ?>
@@ -35,6 +34,10 @@ new class extends Component {
             <flux:subheading>
                 {{ __('Data yang telah dihapus tidak dapat dipulihkan, yakin ingin menghapus data?') }}
             </flux:subheading>
+
+            <x-action-message class="mt-2 mb-2" on="report-deleted">
+                <flux:badge icon="check-circle" color="rose">Data berhasil terhapus.</flux:badge>
+            </x-action-message>
 
             <div class="flex justify-end space-x-2 rtl:space-x-reverse">
                 <flux:modal.close>
