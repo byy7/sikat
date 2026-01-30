@@ -14,30 +14,52 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 new class extends Component {
     use WithPagination;
 
+    public $search = '';
+    public $month = '';
+    public $year = '';
+    public $exportType = '';
+
     #[On('report-deleted')]
     public function refresh()
     {
     }
 
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedMonth()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedYear()
+    {
+        $this->resetPage();
+    }
+
     #[Computed]
     public function stats(): array
     {
+        $query = $this->getFilteredQuery();
+
         return [
             [
                 'title' => 'Total pihak perkara',
-                'value' => Report::GetTotalData("pihak_perkara"),
+                'value' => (clone $query)->where('necessary', 'pihak_perkara')->count(),
             ],
             [
                 'title' => 'Total saksi',
-                'value' => Report::GetTotalData("saksi"),
+                'value' => (clone $query)->where('necessary', 'saksi')->count(),
             ],
             [
                 'title' => 'Total tamu',
-                'value' => Report::GetTotalData("tamu"),
+                'value' => (clone $query)->where('necessary', 'tamu')->count(),
             ],
             [
                 'title' => 'Total kuasa hukum',
-                'value' => Report::GetTotalData("kuasa_hukum"),
+                'value' => (clone $query)->where('necessary', 'kuasa_hukum')->count(),
             ]
         ];
     }
@@ -45,8 +67,41 @@ new class extends Component {
     #[Computed]
     public function rows(): array|LengthAwarePaginator|_IH_Report_C
     {
-        return Report::latest()
+        return $this->getFilteredQuery()
+            ->latest()
             ->paginate(10);
+    }
+
+    public function resetFilters(): void
+    {
+        $this->reset(['search', 'month', 'year', 'exportType']);
+        $this->resetPage();
+    }
+
+    private function getFilteredQuery()
+    {
+        $query = Report::query();
+
+        /* Search Filter */
+        if ($this->search) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', "%$this->search%")
+                    ->orWhere('necessary', 'like', "%$this->search%");
+            });
+        }
+
+        /* Month Filter */
+        if ($this->month) {
+            $monthNumber = Month::getFullMonth()->search($this->month) + 1;
+            $query->whereMonth('created_at', $monthNumber);
+        }
+
+        /* Year Filter */
+        if ($this->year) {
+            $query->whereYear('created_at', $this->year);
+        }
+
+        return $query;
     }
 };
 ?>
@@ -60,24 +115,25 @@ new class extends Component {
     </div>
     <div class="mb-6 flex justify-between">
         <div class="flex items-center gap-2">
-            <flux:select size="md" placeholder="Bulan">
+            <flux:select wire:model.live="month" size="md" placeholder="Bulan">
                 <flux:select.option>Semua</flux:select.option>
                 @foreach(Month::getFullMonth() as $month)
-                    <flux:select.option>{{ $month }}</flux:select.option>
+                    <flux:select.option value="{{ $month }}">{{ $month }}</flux:select.option>
                 @endforeach
             </flux:select>
-            <flux:select size="md" placeholder="Tahun">
-                <option>Previous period</option>
-                <option>Same period last year</option>
-                <option>Last month</option>
-                <option>Last quarter</option>
-                <option>Last 6 months</option>
-                <option>Last 12 months</option>
+            <flux:select wire:model.live="year" size="md" placeholder="Tahun">
+                <flux:select.option>Semua</flux:select.option>
+                @foreach(Report::getYears() as $year)
+                    <flux:select.option value="{{ $year }}">{{ $year }}</flux:select.option>
+                @endforeach
             </flux:select>
-            <flux:select size="md" placeholder="Export">
+            <flux:select size="md" wire:model="exportType" placeholder="Export">
                 <option>PDF</option>
                 <option>Excel</option>
             </flux:select>
+            <flux:tooltip content="Reset Filter">
+                <flux:button wire:click="resetFilters" icon="x-mark"/>
+            </flux:tooltip>
             <flux:tooltip content="Export Data">
                 <flux:button icon="arrow-down-on-square-stack" icon:variant="outline"/>
             </flux:tooltip>
@@ -86,7 +142,8 @@ new class extends Component {
             </flux:tooltip>
         </div>
         <div class="items-center gap-2">
-            <flux:input icon="magnifying-glass" placeholder="Cari Data Pengunjung..." clearable/>
+            <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
+                        placeholder="Cari Data Pengunjung..." clearable/>
         </div>
     </div>
     <div class="flex gap-6 mb-6">
