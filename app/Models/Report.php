@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Concerns\ManageBy;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -40,18 +39,12 @@ class Report extends Model
 
     protected $guarded = ['id'];
 
-    public function scopeGetTotalData(Builder $query, string $type, $month = null, $year = null)
+    public static function getYears()
     {
-        if (is_null($month) && is_null($year)) {
-            $data = $query->where('necessary', $type)->count();
-        } else {
-            $data = $query->where('necessary', $type)
-                ->whereMonth('created_at', $month)
-                ->whereYear('created_at', $year)
-                ->count();
-        }
-
-        return $data;
+        return self::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
     }
 
     public function getNecessaryAttribute($value)
