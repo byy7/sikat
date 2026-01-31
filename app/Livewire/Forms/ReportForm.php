@@ -23,7 +23,7 @@ class ReportForm extends Form
 
     public function setReport($id): void
     {
-        $this->report = Report::find(decrypt($id));
+        $this->report = Report::find($id);
         $this->name = $this->report->name;
         $this->necessary = strtolower(str_replace(' ', '_', $this->report->necessary));
     }
@@ -72,7 +72,7 @@ class ReportForm extends Form
 
     public function delete($id): void
     {
-        $report = Report::find(decrypt($id));
+        $report = Report::find($id);
 
         /* Delete images */
         $this->removeExistingPhoto($report->photo);
