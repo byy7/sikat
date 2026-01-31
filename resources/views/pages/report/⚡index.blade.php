@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\ReportExport;
 use App\Models\Report;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Consts\Month;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new class extends Component {
     use WithPagination;
@@ -24,17 +26,17 @@ new class extends Component {
     {
     }
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function updatedMonth()
+    public function updatedMonth(): void
     {
         $this->resetPage();
     }
 
-    public function updatedYear()
+    public function updatedYear(): void
     {
         $this->resetPage();
     }
@@ -72,10 +74,56 @@ new class extends Component {
             ->paginate(10);
     }
 
+    public function export()
+    {
+        if (!$this->exportType) {
+            $this->dispatch('error-export');
+            return;
+        }
+
+        $data = $this->getFilteredQuery()->latest()->get();
+
+        if ($this->exportType === 'PDF') {
+            return $this->exportPdf($data);
+        } elseif ($this->exportType === 'Excel') {
+            return $this->exportExcel($data);
+        }
+    }
+
     public function resetFilters(): void
     {
-        $this->reset(['search', 'month', 'year', 'exportType']);
+        $this->reset();
         $this->resetPage();
+    }
+
+    private function exportPdf($data): StreamedResponse
+    {
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pages.report.export', [
+            'reports' => $data,
+            'month' => $this->month,
+            'year' => $this->year,
+            'stats' => $this->stats
+        ]);
+
+        $filename = 'Laporan Pengunjung-' . now()->format('Y-m-d-His') . '.pdf';
+
+        $this->reset();
+        $this->resetPage();
+
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, $filename);
+    }
+
+    private function exportExcel($data): BinaryFileResponse
+    {
+        $this->reset();
+        $this->resetPage();
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new ReportExport($data, $this->month, $this->year),
+            'Laporan Pengunjung-' . now()->format('Y-m-d-His') . '.xlsx'
+        );
     }
 
     private function getFilteredQuery()
@@ -116,13 +164,11 @@ new class extends Component {
     <div class="mb-6 flex justify-between">
         <div class="flex items-center gap-2">
             <flux:select wire:model.live="month" size="md" placeholder="Bulan">
-                <flux:select.option>Semua</flux:select.option>
                 @foreach(Month::getFullMonth() as $month)
                     <flux:select.option value="{{ $month }}">{{ $month }}</flux:select.option>
                 @endforeach
             </flux:select>
             <flux:select wire:model.live="year" size="md" placeholder="Tahun">
-                <flux:select.option>Semua</flux:select.option>
                 @foreach(Report::getYears() as $year)
                     <flux:select.option value="{{ $year }}">{{ $year }}</flux:select.option>
                 @endforeach
@@ -135,11 +181,14 @@ new class extends Component {
                 <flux:button wire:click="resetFilters" icon="x-mark"/>
             </flux:tooltip>
             <flux:tooltip content="Export Data">
-                <flux:button icon="arrow-down-on-square-stack" icon:variant="outline"/>
+                <flux:button wire:click="export" icon="arrow-down-on-square-stack" icon:variant="outline"/>
             </flux:tooltip>
             <flux:tooltip content="Refresh">
                 <flux:button wire:click="$refresh" icon="arrow-path"/>
             </flux:tooltip>
+            <x-action-message on="error-export">
+                <flux:badge icon="check-circle" color="rose">Silahkan isi filter terlebih dahulu!</flux:badge>
+            </x-action-message>
         </div>
         <div class="items-center gap-2">
             <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
@@ -167,9 +216,6 @@ new class extends Component {
         </flux:table.columns>
         <flux:table.rows>
             @forelse($this->rows as $key => $row)
-                @php
-                    $encryptedId = encrypt($row->id);
-                @endphp
                 <flux:table.row>
                     <flux:table.cell
                         class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
@@ -180,13 +226,13 @@ new class extends Component {
                     </flux:table.cell>
                     <flux:table.cell class="min-w-6">
                         <div class="flex items-center gap-2">
-                            @if(!is_null($row->photo) && $row->photo !== "")
-                                <flux:modal.trigger :name="'show-photo-' . $encryptedId">
+                            @if(!is_null($row->photo))
+                                <flux:modal.trigger :name="'show-photo-' . $row->id">
                                     <flux:avatar as="button" src="{{ Storage::url($row->photo) }}"/>
                                 </flux:modal.trigger>
 
                                 {{-- Modal --}}
-                                <flux:modal :name="'show-photo-' . $encryptedId">
+                                <flux:modal :name="'show-photo-' . $row->id">
                                     <img class="mt-7 mb-3" src="{{ Storage::url($row->photo) }}" alt="{{ $row->name }}">
 
                                     <div class="flex justify-start space-x-2 rtl:space-x-reverse">
@@ -195,7 +241,7 @@ new class extends Component {
                                         </flux:modal.close>
                                         <div x-data="{ downloading: false }">
                                             <flux:button
-                                                href="{{ route('reports.download', $encryptedId) }}"
+                                                href="{{ route('reports.download', encrypt($row->id)) }}"
                                                 @click="downloading = true; setTimeout(() => downloading = false, 2000)"
                                                 icon="arrow-down-tray"
                                                 variant="primary"
@@ -216,16 +262,16 @@ new class extends Component {
                             <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
                                          inset="top bottom"></flux:button>
                             <flux:menu>
-                                <flux:modal.trigger :name="'edit-report-' . $encryptedId">
+                                <flux:modal.trigger :name="'edit-report-' . $row->id">
                                     <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
                                 </flux:modal.trigger>
-                                <flux:modal.trigger :name="'delete-report-' . $encryptedId">
+                                <flux:modal.trigger :name="'delete-report-' . $row->id">
                                     <flux:menu.item icon="trash" variant="danger">Hapus</flux:menu.item>
                                 </flux:modal.trigger>
                             </flux:menu>
                         </flux:dropdown>
-                        <livewire:pages::report.forms.edit :reportId="$encryptedId"/>
-                        <livewire:pages::report.forms.delete :reportId="$encryptedId"/>
+                        <livewire:pages::report.forms.edit :reportId="$row->id"/>
+                        <livewire:pages::report.forms.delete :reportId="$row->id"/>
                     </flux:table.cell>
                 </flux:table.row>
             @empty
