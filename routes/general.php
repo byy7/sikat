@@ -8,11 +8,8 @@ Route::get('/', function () {
     return view('livewire.auth.login');
 })->name('home');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::livewire('dashboard', 'pages::dashboard')->name('dashboard');
     Route::get('reports/{id}/download', DownloadController::class)->name('reports.download');
     Route::get('reports/export/{type}/{month}/{year}', ReportController::class)->name('reports.export');
 });
-
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
