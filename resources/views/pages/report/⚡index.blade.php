@@ -206,10 +206,11 @@ new class extends Component {
     </div>
     <flux:table>
         <flux:table.columns sticky>
-            <flux:table.column class="max-md:hidden">No</flux:table.column>
-            <flux:table.column class="max-md:hidden">Nama</flux:table.column>
-            <flux:table.column class="max-md:hidden">Keperluan</flux:table.column>
-            <flux:table.column><span class="max-md:hidden">Foto</span>
+            <flux:table.column>No</flux:table.column>
+            <flux:table.column>Tanggal</flux:table.column>
+            <flux:table.column>Nama</flux:table.column>
+            <flux:table.column>Keperluan</flux:table.column>
+            <flux:table.column><span>Foto</span>
                 <div class="md:hidden w-6"></div>
             </flux:table.column>
             <flux:table.column>Aksi</flux:table.column>
@@ -218,9 +219,10 @@ new class extends Component {
             @forelse($this->rows as $key => $row)
                 <flux:table.row>
                     <flux:table.cell
-                        class="max-md:hidden">{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
-                    <flux:table.cell class="max-md:hidden">{{ $row->name }}</flux:table.cell>
-                    <flux:table.cell class="max-md:hidden">
+                    >{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
+                    <flux:table.cell>{{ $row->created_at->format('d/m/Y') }}</flux:table.cell>
+                    <flux:table.cell>{{ $row->name }}</flux:table.cell>
+                    <flux:table.cell>
                         <flux:badge :color="\App\Helpers\CustomBadgeHelper::badgeNecessary($row->necessary)" size="sm"
                                     inset="top bottom">{{ $row->necessary }}</flux:badge>
                     </flux:table.cell>

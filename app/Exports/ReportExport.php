@@ -34,9 +34,9 @@ class ReportExport implements FromCollection, WithHeadings, WithMapping, WithSty
     {
         return [
             'No',
+            'Tanggal',
             'Nama',
             'Keperluan',
-            'Tanggal',
         ];
     }
 
@@ -47,9 +47,9 @@ class ReportExport implements FromCollection, WithHeadings, WithMapping, WithSty
 
         return [
             $no,
+            $row->created_at->format('d/m/Y'),
             $row->name,
             $row->necessary,
-            $row->created_at->format('d M Y'),
         ];
     }
 

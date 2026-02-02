@@ -16,7 +16,7 @@
 
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 5px;
             text-align: left;
         }
 
@@ -62,18 +62,18 @@
     <thead>
     <tr>
         <th>No</th>
+        <th>Tanggal</th>
         <th>Nama</th>
         <th>Keperluan</th>
-        <th>Tanggal</th>
     </tr>
     </thead>
     <tbody>
     @forelse($reports as $key => $report)
         <tr>
             <td>{{ $key + 1 }}</td>
+            <td>{{ $report->created_at->format('d-m-Y | H:i') }}</td>
             <td>{{ $report->name }}</td>
             <td>{{ $report->necessary }}</td>
-            <td>{{ $report->created_at->format('d-m-Y | H:i') }}</td>
         </tr>
     @empty
         <tr>
