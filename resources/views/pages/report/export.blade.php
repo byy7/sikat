@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+@php use Carbon\Carbon; @endphp
+    <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -44,8 +45,8 @@
 <body>
 <div class="header">
     <h2>Laporan Data Pengunjung</h2>
-    @if($month || $year)
-        <p>Periode: {{ $month ?? 'Semua Bulan' }} {{ $year ?? '' }}</p>
+    @if($dateStart && $dateEnd)
+        <p>Periode: {{ Carbon::parse($dateStart)->format('d/m/Y') }} s.d. {{ Carbon::parse($dateEnd)->format('d/m/Y') }}</p>
     @endif
     <p>Tanggal Cetak: {{ now()->format('d-m-Y | H:i') }}</p>
 </div>

@@ -14,15 +14,9 @@ class ReportExport implements FromCollection, WithHeadings, WithMapping, WithSty
 {
     protected $reports;
 
-    protected $month;
-
-    protected $year;
-
-    public function __construct($reports, $month, $year)
+    public function __construct($reports)
     {
         $this->reports = $reports;
-        $this->month = $month;
-        $this->year = $year;
     }
 
     public function collection(): Collection
