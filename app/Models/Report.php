@@ -37,7 +37,7 @@ class Report extends Model
         self::KUASA_HUKUM_VALUE => self::KUASA_HUKUM_LABEL,
     ];
 
-    protected $guarded = ['id'];
+    protected $guarded = [];
 
     public static function getYears()
     {

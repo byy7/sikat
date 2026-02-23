@@ -3,9 +3,10 @@
 use App\Http\Controllers\DownloadController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('livewire.auth.login');
-})->name('home');
+Route::middleware('guest')->group(function () {
+    Route::livewire('/', 'pages::guest-report')->name('reports.guest');
+    Route::livewire('guest/{id}/completed', 'pages::guest-report-completed')->name('reports.guest.completed');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('dashboard', 'pages::dashboard')->name('dashboard');
