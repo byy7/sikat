@@ -155,134 +155,178 @@ new class extends Component {
         <livewire:pages::report.forms.create/>
         <flux:separator variant="subtle"/>
     </div>
-    <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:justify-between">
-        <div class="flex flex-col sm:flex-row items-end sm:items-end gap-2">
-            <flux:field>
+    <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+
+        <!-- LEFT SECTION (FILTER AREA) -->
+        <div class="flex flex-col gap-4 w-full lg:flex-row lg:flex-wrap lg:items-end">
+
+            <flux:field class="w-full sm:w-auto">
                 <flux:label>Tanggal Awal</flux:label>
-                <flux:input wire:model.live="dateStart" type="date"></flux:input>
+                <flux:input
+                    wire:model.live="dateStart"
+                    type="date"
+                    class="w-full"
+                />
             </flux:field>
-            <flux:field>
+
+            <flux:field class="w-full sm:w-auto">
                 <flux:label>Tanggal Akhir</flux:label>
-                <flux:input wire:model.live="dateEnd" type="date"></flux:input>
+                <flux:input
+                    wire:model.live="dateEnd"
+                    type="date"
+                    class="w-full"
+                />
             </flux:field>
-            <flux:field>
+
+            <flux:field class="w-full sm:w-auto">
                 <flux:label>Export Data</flux:label>
-                <flux:select size="md" wire:model="exportType" placeholder="Tipe Export">
+                <flux:select
+                    size="md"
+                    wire:model="exportType"
+                    placeholder="Tipe Export"
+                    class="w-full"
+                >
                     <option>PDF</option>
                     <option>Excel</option>
                 </flux:select>
             </flux:field>
-            <flux:tooltip content="Reset Filter">
-                <flux:button wire:click="resetFilters" icon="x-mark"/>
-            </flux:tooltip>
-            <flux:tooltip content="Export Data">
-                <flux:button wire:click="export" icon="arrow-down-on-square-stack" icon:variant="outline"/>
-            </flux:tooltip>
-            <flux:tooltip content="Refresh">
-                <flux:button wire:click="$refresh" icon="arrow-path"/>
-            </flux:tooltip>
+
+            <!-- BUTTON GROUP -->
+            <div class="flex flex-wrap gap-2">
+                <flux:tooltip content="Reset Filter">
+                    <flux:button wire:click="resetFilters" icon="x-mark" />
+                </flux:tooltip>
+
+                <flux:tooltip content="Export Data">
+                    <flux:button
+                        wire:click="export"
+                        icon="arrow-down-on-square-stack"
+                        icon:variant="outline"
+                    />
+                </flux:tooltip>
+
+                <flux:tooltip content="Refresh">
+                    <flux:button wire:click="$refresh" icon="arrow-path" />
+                </flux:tooltip>
+            </div>
+
             <x-action-message on="error-export">
-                <flux:badge icon="check-circle" color="rose">Silahkan isi filter terlebih dahulu!</flux:badge>
+                <flux:badge icon="check-circle" color="rose">
+                    Silahkan isi filter terlebih dahulu!
+                </flux:badge>
             </x-action-message>
+
         </div>
-        <div class="w-full sm:w-auto">
-            <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass"
-                        placeholder="Cari Data Pengunjung..." clearable/>
+
+        <!-- RIGHT SECTION (SEARCH) -->
+        <div class="w-full lg:w-80">
+            <flux:input
+                wire:model.live.debounce.300ms="search"
+                icon="magnifying-glass"
+                placeholder="Cari Data Pengunjung..."
+                clearable
+                class="w-full"
+            />
         </div>
     </div>
-    <div class="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-        @foreach ($this->stats as $stat)
-            <div
-                class="rounded-lg px-6 py-4 bg-zinc-50 dark:bg-zinc-700">
-                <flux:subheading>{{ $stat['title'] }}</flux:subheading>
-                <flux:heading size="xl" class="mb-2">{{ $stat['value'] }}</flux:heading>
-            </div>
-        @endforeach
-    </div>
-    <div class="overflow-x-auto -mx-4 sm:mx-0">
-        <div class="inline-block min-w-full align-middle">
-            <div class="overflow-hidden">
-                <flux:table>
-                    <flux:table.columns sticky>
-                        <flux:table.column>No</flux:table.column>
-                        <flux:table.column>Tanggal</flux:table.column>
-                        <flux:table.column>Nama</flux:table.column>
-                        <flux:table.column>Keperluan</flux:table.column>
-                        <flux:table.column><span>Foto</span></flux:table.column>
-                        <flux:table.column>Aksi</flux:table.column>
-                    </flux:table.columns>
-                    <flux:table.rows>
-                        @forelse($this->rows as $key => $row)
-                            <flux:table.row>
-                                <flux:table.cell
-                                >{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
-                                <flux:table.cell>{{ $row->created_at->format('d/m/Y') }}</flux:table.cell>
-                                <flux:table.cell>{{ $row->name }}</flux:table.cell>
-                                <flux:table.cell>
-                                    <flux:badge :color="\App\Helpers\CustomBadgeHelper::badgeNecessary($row->necessary)"
-                                                size="sm"
-                                                inset="top bottom">{{ $row->necessary }}</flux:badge>
-                                </flux:table.cell>
-                                <flux:table.cell class="min-w-6">
-                                    <div class="flex items-center gap-2">
-                                        @if(!is_null($row->photo))
-                                            <flux:modal.trigger :name="'show-photo-' . $row->id">
-                                                <flux:avatar as="button" src="{{ Storage::url($row->photo) }}"/>
-                                            </flux:modal.trigger>
+    <div wire:poll.10s>
+        <div class="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+            @foreach ($this->stats as $stat)
+                <div
+                    class="rounded-lg px-6 py-4 bg-zinc-50 dark:bg-zinc-700">
+                    <flux:subheading>{{ $stat['title'] }}</flux:subheading>
+                    <flux:heading size="xl" class="mb-2">{{ $stat['value'] }}</flux:heading>
+                </div>
+            @endforeach
+        </div>
+        <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="inline-block min-w-full align-middle">
+                <div class="overflow-hidden">
+                    <flux:table>
+                        <flux:table.columns sticky>
+                            <flux:table.column>No</flux:table.column>
+                            <flux:table.column>Tanggal</flux:table.column>
+                            <flux:table.column>Nama</flux:table.column>
+                            <flux:table.column>Keperluan</flux:table.column>
+                            <flux:table.column><span>Foto</span></flux:table.column>
+                            <flux:table.column>Aksi</flux:table.column>
+                        </flux:table.columns>
+                        <flux:table.rows>
+                            @forelse($this->rows as $key => $row)
+                                <flux:table.row>
+                                    <flux:table.cell
+                                    >{{ ($this->rows->currentPage() - 1) * $this->rows->perPage() + $key + 1}}</flux:table.cell>
+                                    <flux:table.cell>{{ $row->created_at->format('d/m/Y') }}</flux:table.cell>
+                                    <flux:table.cell>{{ $row->name }}</flux:table.cell>
+                                    <flux:table.cell>
+                                        <flux:badge
+                                            :color="\App\Helpers\CustomBadgeHelper::badgeNecessary($row->necessary)"
+                                            size="sm"
+                                            inset="top bottom">{{ $row->necessary }}</flux:badge>
+                                    </flux:table.cell>
+                                    <flux:table.cell class="min-w-6">
+                                        <div class="flex items-center gap-2">
+                                            @if(!is_null($row->photo))
+                                                <flux:modal.trigger :name="'show-photo-' . $row->id">
+                                                    <flux:avatar as="button" src="{{ Storage::url($row->photo) }}"/>
+                                                </flux:modal.trigger>
 
-                                            {{-- Modal --}}
-                                            <flux:modal :name="'show-photo-' . $row->id">
-                                                <img class="mt-7 mb-3" src="{{ Storage::url($row->photo) }}"
-                                                     alt="{{ $row->name }}">
+                                                {{-- Modal --}}
+                                                <flux:modal :name="'show-photo-' . $row->id">
+                                                    <img class="mt-7 mb-3" src="{{ Storage::url($row->photo) }}"
+                                                         alt="{{ $row->name }}">
 
-                                                <div class="flex justify-start space-x-2 rtl:space-x-reverse">
-                                                    <flux:modal.close>
-                                                        <flux:button variant="filled">{{ __('Tutup') }}</flux:button>
-                                                    </flux:modal.close>
-                                                    <div x-data="{ downloading: false }">
-                                                        <flux:button
-                                                            href="{{ route('reports.download', encrypt($row->id)) }}"
-                                                            @click="downloading = true; setTimeout(() => downloading = false, 2000)"
-                                                            icon="arrow-down-tray"
-                                                            variant="primary"
-                                                            ::disabled="downloading">
-                                                            <span x-show="!downloading">{{ __('Download') }}</span>
-                                                            <span x-show="downloading">{{ __('Downloading...') }}</span>
-                                                        </flux:button>
+                                                    <div class="flex justify-start space-x-2 rtl:space-x-reverse">
+                                                        <flux:modal.close>
+                                                            <flux:button
+                                                                variant="filled">{{ __('Tutup') }}</flux:button>
+                                                        </flux:modal.close>
+                                                        <div x-data="{ downloading: false }">
+                                                            <flux:button
+                                                                href="{{ route('reports.download', encrypt($row->id)) }}"
+                                                                @click="downloading = true; setTimeout(() => downloading = false, 2000)"
+                                                                icon="arrow-down-tray"
+                                                                variant="primary"
+                                                                ::disabled="downloading">
+                                                                <span x-show="!downloading">{{ __('Download') }}</span>
+                                                                <span
+                                                                    x-show="downloading">{{ __('Downloading...') }}</span>
+                                                            </flux:button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </flux:modal>
-                                        @else
-                                            <p>Foto tidak ditemukan</p>
-                                        @endif
-                                    </div>
-                                </flux:table.cell>
-                                <flux:table.cell>
-                                    <flux:dropdown position="bottom" align="end" offset="-15">
-                                        <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
-                                                     inset="top bottom"></flux:button>
-                                        <flux:menu>
-                                            <flux:modal.trigger :name="'edit-report-' . $row->id">
-                                                <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
-                                            </flux:modal.trigger>
-                                            <flux:modal.trigger :name="'delete-report-' . $row->id">
-                                                <flux:menu.item icon="trash" variant="danger">Hapus</flux:menu.item>
-                                            </flux:modal.trigger>
-                                        </flux:menu>
-                                    </flux:dropdown>
-                                    <livewire:pages::report.forms.edit :reportId="$row->id"/>
-                                    <livewire:pages::report.forms.delete :reportId="$row->id"/>
-                                </flux:table.cell>
-                            </flux:table.row>
-                        @empty
-                            <flux:table.row class="text-center">
-                                <flux:table.cell colspan="5">Data Tidak Tersedia</flux:table.cell>
-                            </flux:table.row>
-                        @endforelse
-                    </flux:table.rows>
-                </flux:table>
+                                                </flux:modal>
+                                            @else
+                                                <p>Foto tidak ditemukan</p>
+                                            @endif
+                                        </div>
+                                    </flux:table.cell>
+                                    <flux:table.cell>
+                                        <flux:dropdown position="bottom" align="end" offset="-15">
+                                            <flux:button variant="ghost" size="sm" icon="ellipsis-horizontal"
+                                                         inset="top bottom"></flux:button>
+                                            <flux:menu>
+                                                <flux:modal.trigger :name="'edit-report-' . $row->id">
+                                                    <flux:menu.item icon="pencil-square">Edit</flux:menu.item>
+                                                </flux:modal.trigger>
+                                                <flux:modal.trigger :name="'delete-report-' . $row->id">
+                                                    <flux:menu.item icon="trash" variant="danger">Hapus</flux:menu.item>
+                                                </flux:modal.trigger>
+                                            </flux:menu>
+                                        </flux:dropdown>
+                                        <livewire:pages::report.forms.edit :reportId="$row->id"/>
+                                        <livewire:pages::report.forms.delete :reportId="$row->id"/>
+                                    </flux:table.cell>
+                                </flux:table.row>
+                            @empty
+                                <flux:table.row class="text-center">
+                                    <flux:table.cell colspan="5">Data Tidak Tersedia</flux:table.cell>
+                                </flux:table.row>
+                            @endforelse
+                        </flux:table.rows>
+                    </flux:table>
+                </div>
             </div>
         </div>
+        <flux:pagination :paginator="$this->rows"/>
     </div>
-    <flux:pagination :paginator="$this->rows"/>
 </div>

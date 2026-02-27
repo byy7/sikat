@@ -48,7 +48,7 @@
     @if($dateStart && $dateEnd)
         <p>Periode: {{ Carbon::parse($dateStart)->format('d/m/Y') }} s.d. {{ Carbon::parse($dateEnd)->format('d/m/Y') }}</p>
     @endif
-    <p>Tanggal Cetak: {{ now()->format('d-m-Y | H:i') }}</p>
+    <p>Tanggal Cetak: {{ now()->format('d-m-Y') }}</p>
 </div>
 
 <div class="stats">
@@ -72,7 +72,7 @@
     @forelse($reports as $key => $report)
         <tr>
             <td>{{ $key + 1 }}</td>
-            <td>{{ $report->created_at->format('d-m-Y | H:i') }}</td>
+            <td>{{ $report->created_at->format('d-m-Y') }}</td>
             <td>{{ $report->name }}</td>
             <td>{{ $report->necessary }}</td>
         </tr>
