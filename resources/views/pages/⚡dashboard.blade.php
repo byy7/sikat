@@ -16,7 +16,7 @@ new class extends Component {
 
     public function updatedMonth(): void
     {
-       $this->refresh();
+        $this->refresh();
     }
 
     public function updatedYear(): void
@@ -182,7 +182,7 @@ new class extends Component {
 
         const labels = source.map(item => item.label);
         const counts = source.map(item => item.count);
-        const colors = ['#FF6B6B', '#4D96FF', '#FFC75F', '#6BCF9D'];
+        const colors = ['#6BCF9D', '#4D96FF', '#FF6B6B', '#FFC75F', '#de7c09'];
 
         const customLabels = {
             id: 'customLabels',

@@ -35,11 +35,11 @@
                     viewable
                 />
 
-                {{--                @if (Route::has('password.request'))--}}
-                {{--                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>--}}
-                {{--                        {{ __('Forgot your password?') }}--}}
-                {{--                    </flux:link>--}}
-                {{--                @endif--}}
+                @if (Route::has('password.request'))
+                    <flux:link class="absolute top-0 text-sm end-0" :href="route('password.request')" wire:navigate>
+                        {{ __('Lupa password?') }}
+                    </flux:link>
+                @endif
             </div>
 
             <!-- Remember Me -->

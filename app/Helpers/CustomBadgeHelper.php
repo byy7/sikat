@@ -8,16 +8,16 @@ class CustomBadgeHelper
     {
         switch ($necessary) {
             case 'Pihak Perkara':
-                $color = 'red';
+                $color = 'emerald';
                 break;
             case 'Saksi':
                 $color = 'blue';
                 break;
             case 'Tamu':
-                $color = 'yellow';
+                $color = 'red';
                 break;
             case 'Kuasa Hukum':
-                $color = 'teal';
+                $color = 'yellow';
                 break;
         }
 
