@@ -18,7 +18,7 @@ class extends Component {
     #[Validate('required')]
     public $necessary = '';
 
-    #[Validate('nullable|image|max:5120')]
+    #[Validate('nullable|image')]
     public $photo = null;
 
     public function save()
@@ -76,8 +76,8 @@ class extends Component {
             x-on:livewire-upload-error="uploading = false"
             x-on:livewire-upload-progress="progress = $event.detail.progress">
 
-            <flux:input type="file" wire:model="photo" label="Foto" accept="image/*"
-                        description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
+            <flux:input type="file" wire:model="photo" label="Foto" accept="image/*" capture="environment"
+                        description:trailing="Foto wajib format JPG/JPEG/PNG." required/>
 
             <div wire:loading wire:target="photo">Uploading...</div>
 

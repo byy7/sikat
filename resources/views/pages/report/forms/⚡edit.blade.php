@@ -65,7 +65,7 @@ new class extends Component {
                 <flux:label>Silahkan upload foto jika ingin mengganti foto</flux:label>
 
                 <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
-                            description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB."/>
+                            description:trailing="Foto wajib format JPG/JPEG/PNG"/>
 
                 <div wire:loading wire:target="form.photo">Uploading...</div>
 

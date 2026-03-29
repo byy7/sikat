@@ -68,7 +68,7 @@ new class extends Component {
                 x-on:livewire-upload-progress="progress = $event.detail.progress">
 
                 <flux:input type="file" wire:model="form.photo" label="Foto" accept="image/*"
-                            description:trailing="Foto wajib format JPG/JPEG/PNG & Maks berukuran 5 MB." required/>
+                            description:trailing="Foto wajib format JPG/JPEG/PNG." required/>
 
                 <div wire:loading wire:target="form.photo">Uploading...</div>
 

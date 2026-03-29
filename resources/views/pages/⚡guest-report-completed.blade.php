@@ -67,5 +67,10 @@ class extends Component {
                 </div>
             </flux:card>
         @endif
+
+        <div class="flex justify-end space-x-2 rtl:space-x-reverse mt-3">
+            <flux:button variant="primary" color="emerald" :href="route('reports.guest')"
+                         type="button" wire:navigate>{{ __('Isi Form baru') }}</flux:button>
+        </div>
     </div>
 </div>
