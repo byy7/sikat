@@ -162,7 +162,7 @@ new class extends Component {
             chartInstance = null;
         }
 
-        let source = data || @json($visitorData);
+        let source = (data || @json($visitorData)).slice(0, -1);
 
         if (source && typeof source === 'object') {
             // If it's an object with a visitorData property
@@ -263,7 +263,6 @@ new class extends Component {
 
     /* Listen for filter changes */
     Livewire.on('update-chart', (event) => {
-        // Handle the event data - it could be wrapped in different ways
         let data = event.data;
 
         initVisitorChart(data);
